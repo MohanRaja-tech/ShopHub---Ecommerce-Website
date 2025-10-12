@@ -1,0 +1,118 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Build output
+node_modules
+dist
+dist-ssr
+*.local
+build/
+public/build/
+
+# Environment variables
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Parcel cache
+.cache
+.parcel-cache
+
+# Vite cache
+.rollup.cache/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Bun files
+.bun
+bun.lockb
+
+# Backup files created during development
+*-backup*.ts
+*-backup*.tsx
+*-backup*.js
+*-backup*.jsx
+*-backup-*.ts
+*-backup-*.tsx
+
+# Test coverage
+coverage/
+.coverage
+
+# Prettier cache
+.prettiercache
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+
+# Database files (if using local SQLite)
+*.sqlite
+*.sqlite3
+*.db
+
+# Mac system files
+.AppleDouble
+.LSOverride
+
+# Windows system files
+$RECYCLE.BIN/
+
+# Debug files
+*.map
+
+# Production environment files
+.env.production
