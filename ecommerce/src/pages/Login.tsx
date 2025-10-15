@@ -23,13 +23,15 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const success = login(email, password);
+      const success = await login(email, password);
       if (success) {
         toast.success("Login successful!");
         navigate("/");
       } else {
         toast.error("Invalid credentials");
       }
+    } catch (error) {
+      toast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

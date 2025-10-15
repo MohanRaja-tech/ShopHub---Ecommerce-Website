@@ -2,15 +2,16 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product/ProductCard";
-import { getFeaturedProducts, getTrendingProducts } from "@/data/products";
+import { useProducts } from "@/contexts/ProductContext";
 import { ArrowRight, Zap, Shield, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const Index = () => {
   const navigate = useNavigate();
-  const featuredProducts = getFeaturedProducts();
-  const trendingProducts = getTrendingProducts();
+  const { products } = useProducts();
+  const featuredProducts = products.filter(p => p.tags?.includes("featured"));
+  const trendingProducts = products.filter(p => p.tags?.includes("trending"));
 
   const container = {
     hidden: { opacity: 0 },

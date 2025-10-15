@@ -62,8 +62,8 @@ export const users: User[] = [
   },
   {
     id: "admin1",
-    email: "admin@example.com",
-    password: "admin123",
+    email: "admin@gmail.com",
+    password: "admin@123",
     name: "Admin User",
     phone: "+1555666777",
     role: "admin",

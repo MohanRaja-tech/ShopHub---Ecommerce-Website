@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { User, getUserByEmail, addUser } from "@/data/users";
+import { User } from "@/contexts/UserContext";
+import { authAPI } from "@/services/api";
 
 interface SignupData {
   name: string;
@@ -16,7 +17,7 @@ interface SignupData {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   signup: (userData: SignupData) => Promise<boolean>;
   logout: () => void;
   isAdmin: boolean;
@@ -30,21 +31,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const login = (email: string, password: string): boolean => {
-    const foundUser = getUserByEmail(email);
-    if (foundUser && foundUser.password === password) {
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const response = await authAPI.login(email, password);
+      const foundUser = response.data.user;
       setUser(foundUser);
       localStorage.setItem("currentUser", JSON.stringify(foundUser));
       return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
   const signup = async (userData: SignupData): Promise<boolean> => {
     try {
-      const newUser = addUser(userData);
+      const response = await authAPI.register(userData);
+      const newUser = response.data.user;
+      setUser(newUser);
+      localStorage.setItem("currentUser", JSON.stringify(newUser));
       return true;
     } catch (error) {
+      console.error('Signup error:', error);
       return false;
     }
   };

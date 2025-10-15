@@ -1,154 +1,189 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
-import { products } from "@/data/products";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useProducts } from "@/contexts/ProductContext";
+import { ProductFormDialog } from "@/components/admin/ProductFormDialog";
+import { Product } from "@/data/products";
 import { Edit, Trash2, Search, Plus } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 const AdminProducts = () => {
-  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { products, deleteProduct } = useProducts();
   const [searchQuery, setSearchQuery] = useState("");
-
-  if (!user || !isAdmin) {
-    navigate("/");
-    return null;
-  }
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    setDialogOpen(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (productToDelete) {
+      deleteProduct(productToDelete.id);
+      toast.success("Product deleted successfully!");
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-
-      <main className="flex-1 py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Manage Products</h1>
-              <p className="text-muted-foreground">View and manage all products</p>
-            </div>
-            <Button className="bg-accent hover:bg-accent-hover">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Product
-            </Button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Products</h1>
+            <p className="text-gray-600">View and manage all products ({filteredProducts.length} total)</p>
           </div>
-
-          {/* Search */}
-          <div className="mb-6">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Products Table */}
-          <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted/50 border-b">
-                  <tr>
-                    <th className="text-left p-4 font-semibold">Product</th>
-                    <th className="text-left p-4 font-semibold">Category</th>
-                    <th className="text-left p-4 font-semibold">Price</th>
-                    <th className="text-left p-4 font-semibold">Stock</th>
-                    <th className="text-left p-4 font-semibold">Rating</th>
-                    <th className="text-left p-4 font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProducts.map((product, index) => (
-                    <motion.tr
-                      key={product.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="border-b hover:bg-muted/50 transition-colors"
-                    >
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-12 h-12 rounded object-cover"
-                          />
-                          <div>
-                            <p className="font-medium">{product.name}</p>
-                            <p className="text-sm text-muted-foreground line-clamp-1">
-                              {product.description}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="outline">{product.category}</Badge>
-                      </td>
-                      <td className="p-4">
-                        <div>
-                          <p className="font-semibold">${product.price}</p>
-                          {product.originalPrice && (
-                            <p className="text-xs text-muted-foreground line-through">
-                              ${product.originalPrice}
-                            </p>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        {product.inStock ? (
-                          <Badge className="bg-success">In Stock</Badge>
-                        ) : (
-                          <Badge variant="destructive">Out of Stock</Badge>
-                        )}
-                      </td>
-                      <td className="p-4">
-                        <div>
-                          <p className="font-medium">{product.rating}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {product.reviews} reviews
-                          </p>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No products found</p>
-            </div>
-          )}
+          <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleAddProduct}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Product
+          </Button>
         </div>
-      </main>
+      </div>
 
-      <Footer />
+      {/* Search */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            type="search"
+            placeholder="Search products..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Products Grid */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProducts.map((product, index) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <Button size="sm" variant="secondary" className="p-2" onClick={() => handleEditProduct(product)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="destructive" className="p-2" onClick={() => handleDeleteClick(product)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900 line-clamp-1">{product.name}</h3>
+                    <Badge variant={product.inStock ? "default" : "destructive"}>
+                      {product.inStock ? "In Stock" : "Out of Stock"}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-lg font-bold text-gray-900">
+                        ₹{product.price.toLocaleString('en-IN')}
+                      </span>
+                      {product.originalPrice && (
+                        <span className="text-sm text-gray-500 line-through ml-2">
+                          ₹{product.originalPrice.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </div>
+                    <Badge variant="outline">{product.category}</Badge>
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-3 h-3 ${
+                            i < Math.floor(product.rating)
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        >
+                          ★
+                        </div>
+                      ))}
+                      <span className="text-sm text-gray-600 ml-2">
+                        {product.rating} ({product.reviews} reviews)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No products found matching your search</p>
+          </div>
+        )}
+      </div>
+
+      {/* Product Form Dialog */}
+      <ProductFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        product={editingProduct}
+        mode={editingProduct ? "edit" : "add"}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Product</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{productToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

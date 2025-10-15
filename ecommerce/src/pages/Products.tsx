@@ -3,7 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/product/ProductCard";
-import { products, categories } from "@/data/products";
+import { categories } from "@/data/products";
+import { useProducts } from "@/contexts/ProductContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import { motion } from "framer-motion";
 
 const Products = () => {
   const [searchParams] = useSearchParams();
+  const { products } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [priceRange, setPriceRange] = useState<number[]>([0, 200000]);
   const [minPrice, setMinPrice] = useState<string>("0");
